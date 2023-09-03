@@ -3,6 +3,8 @@ from django.db import models
 from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
 
+from .validators import validate_icon_image_size, validate_image_file_extension
+
 
 def service_icon_upload_path(instance, filename):
     return f"service/{instance.name}/service_icons/{filename}"
@@ -65,9 +67,17 @@ class Channel(models.Model):
         Service, on_delete=models.CASCADE, related_name="channel_service"
     )
     banner = models.ImageField(
-        upload_to=service_banner_upload_path, null=True, blank=True
+        upload_to=service_banner_upload_path,
+        null=True,
+        blank=True,
+        validators=[validate_icon_image_size],
     )
-    icon = models.ImageField(upload_to=service_icon_upload_path, null=True, blank=True)
+    icon = models.ImageField(
+        upload_to=service_icon_upload_path,
+        null=True,
+        blank=True,
+        validators=[validate_icon_image_size, validate_image_file_extension],
+    )
 
     def save(self, *args, **kwargs):
         self.name = self.name.lower()
